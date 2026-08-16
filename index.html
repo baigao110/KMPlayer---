@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>资源集合及KMPlayer播放器媒体信息</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 时间横条 - 科技感设计 -->
+    <div class="time-bar">
+        <div class="time-container">
+            <div class="time-display-wrapper">
+                <div class="time-display" id="current-time">正在加载时间...</div>
+            </div>
+            <div class="theme-selector">
+                <button class="theme-btn" id="theme-btn" type="button">
+                    <span class="theme-icon">🎨</span>
+                    <span class="theme-text">主题</span>
+                </button>
+                <div class="theme-dropdown" id="theme-dropdown">
+                    <div class="theme-option" data-theme="dark">深色主题</div>
+                    <div class="theme-option" data-theme="light">白色主题</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 手表充电提醒按钮 -->
+    <div class="watch-charge-reminder" id="watch-charge-reminder">
+        <span class="watch-charge-icon">⌚</span>
+        今天晚上记得给手表充电
+    </div>
+
+    <!-- Unix时间戳转换工具 -->
+    <div class="timestamp-tool-container tool-container" id="timestamp-tool-container">
+        <div class="tool-title" id="timestamp-tool-title">Unix时间戳与日期相互转换工具</div>
+        <div class="tool-content" id="timestamp-tool-content">
+            <div class="timestamp-input-group">
+                <div class="timestamp-input-row">
+                    <span class="timestamp-label">日期时间:</span>
+                    <input type="text" class="timestamp-input" id="datetime-input" placeholder="格式: 1984-08-13 06:45:00">
+                    <button class="timestamp-btn" id="to-timestamp-btn">转换为时间戳</button>
+                </div>
+                <div class="timestamp-input-row">
+                    <span class="timestamp-label">Unix时间戳:</span>
+                    <input type="text" class="timestamp-input" id="timestamp-input" placeholder="例如: 461198700">
+                    <button class="timestamp-btn" id="to-datetime-btn">转换为日期</button>
+                </div>
+            </div>
+            <div class="timestamp-result" id="timestamp-result">请选择转换方式</div>
+            <div class="current-timestamp" id="current-timestamp">当前时间戳: 正在加载...</div>
+        </div>
+    </div>
+
+    <!-- 计时器工具 -->
+    <div class="timer-container tool-container" id="timer-container">
+        <div class="tool-title" id="timer-title">计时器工具</div>
+        <div class="tool-content" id="timer-content">
+            <div class="timer-setup" id="timer-setup">
+                <div class="setup-title">设置计时器初始时间</div>
+                <div class="digit-wheels-container" id="digit-wheels-container"></div>
+                <div class="touch-guide">提示：滑动选择数字，点击确认</div>
+                <div class="timer-setup-controls">
+                    <button class="setup-btn" id="apply-timer-btn">应用设置</button>
+                    <button class="setup-btn cancel" id="cancel-timer-btn">取消</button>
+                </div>
+            </div>
+
+            <div class="custom-countdown-generator" id="custom-countdown-generator">
+                <div class="generator-title">自定义倒计时生成器</div>
+                <form class="generator-form" id="countdown-generator-form">
+                    <div class="form-group">
+                        <label class="form-label" for="custom-countdown-title">倒计时标题:</label>
+                        <input type="text" class="form-input" id="custom-countdown-title" placeholder="例如：春节倒计时" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="custom-countdown-date">目标日期:</label>
+                        <input type="date" class="form-input" id="custom-countdown-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="custom-countdown-time">目标时间:</label>
+                        <input type="time" class="form-input" id="custom-countdown-time" value="12:00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="custom-countdown-past-text">过期显示文本:</label>
+                        <input type="text" class="form-input" id="custom-countdown-past-text" placeholder="例如：已过期" value="已过期">
+                    </div>
+                    <div class="generator-controls">
+                        <button type="submit" class="generator-btn" id="generate-countdown-btn">生成倒计时</button>
+                        <button type="button" class="generator-btn cancel" id="cancel-generator-btn">取消</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="timer-controls">
+                <button class="timer-btn" id="timer-setup-btn"><span class="btn-icon">⏱</span><span class="btn-text">设置计时器</span></button>
+                <button class="timer-btn" id="timer-start-btn"><span class="btn-icon">▶</span><span class="btn-text">计时器开始</span></button>
+                <button class="timer-btn" id="timer-pause-btn" disabled><span class="btn-icon">⏸</span><span class="btn-text">计时器暂停</span></button>
+                <button class="timer-btn" id="timer-reset-btn" disabled><span class="btn-icon">🔄</span><span class="btn-text">计时器重置</span></button>
+                <button class="mode-btn" id="timer-mode-btn"><span class="btn-icon">🔄</span><span class="btn-text">切换模式(0)</span></button>
+                <button class="custom-countdown-btn" id="custom-countdown-btn"><span class="btn-icon">➕</span><span class="btn-text">生成倒计时</span></button>
+                <button class="manage-custom-countdowns-btn" id="manage-custom-countdowns-btn"><span class="btn-icon">🗂️</span><span class="btn-text">管理自定义倒计时</span></button>
+            </div>
+
+            <div class="timer-display" id="timer-display">01:00:00.00</div>
+            <div class="target-time-display" id="target-time-display">
+                <div class="target-time-label">倒计时结束时间:</div>
+                <div class="target-time-value" id="target-time-value">尚未设置</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 秒表工具 -->
+    <div class="stopwatch-container tool-container" id="stopwatch-container">
+        <div class="tool-title" id="stopwatch-title">秒表工具</div>
+        <div class="tool-content" id="stopwatch-content">
+            <div class="stopwatch-controls">
+                <button class="stopwatch-btn" id="stopwatch-start-btn"><span class="btn-icon">⏱</span><span class="btn-text">秒表开始</span></button>
+                <button class="stopwatch-btn" id="stopwatch-pause-btn" disabled><span class="btn-icon">⏸</span><span class="btn-text">秒表暂停</span></button>
+                <button class="lap-btn" id="lap-btn" disabled><span class="btn-icon">⏱</span><span class="btn-text">记录时间</span></button>
+                <button class="stopwatch-btn" id="stopwatch-reset-btn" disabled><span class="btn-icon">🔄</span><span class="btn-text">秒表重置</span></button>
+            </div>
+
+            <div class="stopwatch-display" id="stopwatch-display">
+                <div class="stopwatch-total-time" id="stopwatch-total-time">00:00:00.00</div>
+                <div class="stopwatch-lap-time hidden" id="stopwatch-lap-time">当前圈: 00:00:00.00</div>
+            </div>
+
+            <div class="laps-container" id="laps-container" style="display: none;">
+                <h4 style="color: #ff9966; text-align: center; margin-bottom: 15px;">圈数记录</h4>
+                <ul class="laps-list" id="laps-list"></ul>
+                <div class="lap-stats" id="lap-stats" style="display: none;">
+                    <div class="stat-item">
+                        <div class="stat-label">总圈数</div>
+                        <div class="stat-value" id="total-laps">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">最短时间</div>
+                        <div class="stat-value fastest" id="fastest-lap">00:00:00.00</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">最长时间</div>
+                        <div class="stat-value slowest" id="slowest-lap">00:00:00.00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 广播电台时间频率查询工具 -->
+    <div class="tool-container">
+        <div class="tool-title">广播电台时间频率查询</div>
+        <div class="tool-content">
+            <div class="radio-selector" style="display: flex; flex-direction: column; gap: 15px; padding: 10px 0;">
+                <div class="selector-group">
+                    <label for="radio-time" style="display: block; margin-bottom: 5px; font-weight: bold;">电台时间：</label>
+                    <select id="radio-time" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #333; background: #111; color: #e0e0ff;">
+                        <option value="">请选择时间</option>
+                        <option value="05:00-06:00">05:00-06:00</option>
+                        <option value="06:00-07:00">06:00-07:00</option>
+                        <option value="07:00-08:00">07:00-08:00</option>
+                        <option value="12:00-13:00">12:00-13:00</option>
+                        <option value="13:00-14:00">13:00-14:00</option>
+                        <option value="15:00-16:00">15:00-16:00</option>
+                        <option value="16:00-17:00">16:00-17:00</option>
+                        <option value="19:00-20:00">19:00-20:00</option>
+                        <option value="19:30-20:30">19:30-20:30</option>
+                        <option value="20:30-21:30">20:30-21:30</option>
+                        <option value="21:00-22:00">21:00-22:00</option>
+                    </select>
+                </div>
+                <div class="result-display" id="radio-result" style="margin-top: 20px; padding: 15px; border-radius: 8px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(0, 204, 255, 0.3);">
+                    <p style="margin: 0; text-align: center; color: #00ccff;">请选择电台信息查看详细内容</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 华都云境悦府收房倒计时 -->
+    <div class="countdown-container tool-container" id="countdown-container">
+        <div class="fixed-countdown" id="fixed-countdown">
+            <div class="fixed-countdown-time" id="fixed-countdown-time">正在计算...</div>
+            <div class="fixed-countdown-note" id="fixed-countdown-note">从页面加载时到目标时间的固定倒计时</div>
+        </div>
+        <div class="countdown-title">预计华都云境悦府收房实时倒计时(黄帝纪年4723年 公元2026年10月31日 星期六)</div>
+        <div class="countdown-display" id="countdown-display">正在计算...</div>
+    </div>
+
+    <!-- GTA6倒计时 -->
+    <div class="countdown-container tool-container" id="gta6-countdown-container">
+        <div class="fixed-countdown" id="gta6-fixed-countdown">
+            <div class="fixed-countdown-time" id="gta6-fixed-countdown-time">正在计算...</div>
+            <div class="fixed-countdown-note" id="gta6-fixed-countdown-note">从页面加载时到目标时间的固定倒计时</div>
+        </div>
+        <div class="countdown-title">预计GTA6发售实时倒计时(黄帝纪年4723年 公元2026年11月19日 星期四)</div>
+        <div class="countdown-display" id="gta6-countdown-display">正在计算...</div>
+        <div class="fixed-countdown-note">首发平台 PS 5和微软Xbox Series X|S</div>
+    </div>
+
+    <!-- Ping测试工具 -->
+    <div class="ping-tool-container tool-container" id="ping-tool-container">
+        <div class="tool-title" id="ping-tool-title">网页链接连通性测试工具</div>
+        <div class="tool-content" id="ping-tool-content">
+            <div class="timestamp-input-group">
+                <div class="timestamp-input-row">
+                    <button class="ping-test-btn" id="ping-test-btn">开始测试所有链接连通性</button>
+                    <button class="ping-test-btn" id="ping-radio-btn">测试电台链接连通性</button>
+                </div>
+            </div>
+            <div class="ping-results" id="ping-results">
+                <h4>测试结果</h4>
+                <div class="ping-summary" id="ping-summary"></div>
+                <div class="ping-links-list" id="ping-links-list"></div>
+                <div class="ping-note" style="margin-top: 15px; padding: 10px; background: rgba(255, 153, 102, 0.1); border-radius: 8px; border: 1px solid rgba(255, 153, 102, 0.3); font-size: 12px; color: #ff9966;">
+                    ⚠ 提示：由于浏览器安全限制(CORS)，网页链接测试仅能检测服务器是否响应，无法判断页面是否存在(404)。显示"成功"表示服务器可达，但页面可能已失效。建议手动点击链接验证。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理自定义倒计时面板 -->
+    <div class="manage-custom-countdowns-panel" id="manage-custom-countdowns-panel">
+        <div class="manage-title">管理自定义倒计时</div>
+        <div class="custom-countdowns-list" id="custom-countdowns-list">
+            <div class="no-custom-countdowns" id="no-custom-countdowns" style="text-align: center; color: #a0a0ff; padding: 20px;">暂无自定义倒计时</div>
+        </div>
+        <div class="manage-panel-controls">
+            <button class="manage-panel-btn" id="close-manage-panel-btn">关闭管理面板</button>
+            <button class="manage-panel-btn delete-all" id="delete-all-custom-countdowns-btn">删除所有自定义倒计时</button>
+        </div>
+    </div>
+
+    <!-- 音乐播放器 -->
+    <div class="music-player">
+        <button class="toggle-btn" id="toggle-btn">→</button>
+        <div class="station-name-collapsed" id="station-name-collapsed"></div>
+        <div class="music-info-container">
+            <div class="music-info" id="music-title">选择自己喜欢的电台</div>
+            <div class="music-controls">
+                <button class="music-btn" id="prev-btn">⏮</button>
+                <button class="music-btn" id="play-pause-btn">▶</button>
+                <button class="music-btn" id="next-btn">⏭</button>
+                <div class="progress-container" id="progress-container">
+                    <div class="progress-slider-container">
+                        <input type="range" min="0" max="100" value="0" class="progress-slider" id="progress-slider">
+                        <div class="progress-time" id="progress-time">00:00 / 00:00</div>
+                    </div>
+                    <div class="current-time-display" id="current-time-display">00:00 / 00:00</div>
+                </div>
+                <div class="volume-control">
+                    <div class="volume-slider-container">
+                        <input type="range" min="0" max="100" value="50" class="volume-slider" id="volume-slider">
+                        <div class="volume-percentage" id="volume-percentage">50%</div>
+                    </div>
+                </div>
+                <div class="station-selector">
+                    <select class="station-select" id="station-select">
+                        <option value="">选择电台...</option>
+                    </select>
+                </div>
+                <div class="custom-play-container">
+                    <button class="custom-play-btn" id="custom-play-btn">自定义播放</button>
+                    <div class="custom-play-input-container" id="custom-play-input-container">
+                        <input type="text" class="custom-play-input" id="custom-play-input" placeholder="输入MP3、WAV、M4A、AAC、OGG等音频网址">
+                        <button class="custom-play-submit" id="custom-play-submit">播放URL</button>
+                        <div class="custom-play-drag-area" id="custom-play-drag-area">
+                            <div class="custom-play-drag-text">或拖拽本地音频文件(MP3、WAV、M4A、AAC、OGG等)到此处</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast提示 -->
+    <div id="toast" class="toast"></div>
+
+    <!-- 自定义倒计时容器 -->
+    <div id="custom-countdowns-container" style="margin-bottom: 25px;"></div>
+
+    <!-- 名言警句 -->
+    <div class="quotes-section">
+        <div class="quotes-container">
+            <div class="quote"><p>打得一拳开，免得百拳来！</p></div>
+            <div class="quote"><p>尊严只在剑锋之上，真理只在大炮射程之内！</p></div>
+            <div class="quote"><p>庙小无僧风扫地,天高有月佛点灯</p></div>
+        </div>
+    </div>
+
+    <!-- KMPlayer媒体信息 -->
+    <div class="category">
+        <h2 class="category-title">KMPlayer播放器媒体信息(样本英语原文和中文机器翻译)</h2>
+
+        <details>
+            <summary style="color: #ff5e62;">KMPlayer播放器媒体信息英语原文(例如：电视剧-外科风云)</summary>
+            <div class="content">
+                <div class="media-info">
+H:\电视剧\外科风云\w科f云.EP06.HD1080p.mp4
+   General
+      Complete name : H:\电视剧\外科风云\w科f云.EP06.HD1080p.mp4
+      Format : MPEG-4
+      Format profile : Base Media
+      Codec ID : isom
+      File size : 413 MiB
+      Duration : 43mn 23s
+      Overall bit rate : 1 330 Kbps
+      Encoded date : UTC 2023-02-01 05:11:32
+      Tagged date : UTC 2023-02-01 05:11:32
+      Writing application : Lavf59.34.101
+      Cover : Yes
+   Video #1
+      ID : 1
+      Format : AVC
+      Format/Info : Advanced Video Codec
+      Codec ID : avc1
+      Codec ID/Info : Advanced Video Coding
+      Duration : 43mn 23s
+      Bit rate mode : Variable
+      Bit rate : 1 231 Kbps
+      Maximum bit rate : 1 231 Kbps
+      Width : 1 920 pixels
+      Height : 1 080 pixels
+      Display aspect ratio : 16:9
+      Frame rate mode : Variable
+      Frame rate : 24.889 fps
+      Minimum frame rate : 8.333 fps
+      Maximum frame rate : 28.320 fps
+      Bits/(Pixel*Frame) : 0.024
+      Stream size : 382 MiB (93%)
+      Encoded date : UTC 2023-02-01 05:11:32
+      Tagged date : UTC 2023-02-01 05:11:32
+   Audio #3
+      ID : 3
+      Format : AAC
+      Format/Info : Advanced Audio Codec
+      Format version : Version 4
+      Format profile : LC
+      Format settings, SBR : No
+      Codec ID : 40
+      Duration : 43mn 23s
+      Bit rate mode : Constant
+      Bit rate : 93.0 Kbps
+      Maximum bit rate : 93.0 Kbps
+      Channel(s : 2 channels
+      Channel positions : L R
+      Sampling rate : 48.0 KHz
+      Resolution : 16 bits
+      Stream size : 28.9 MiB (7%)
+      Encoded date : UTC 2023-02-01 05:11:32
+      Tagged date : UTC 2023-02-01 05:11:32
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary style="color: #00ccff;">KMPlayer播放器媒体信息中文翻译(例如：电视剧-外科风云)</summary>
+            <div class="content">
+                <div class="media-info">
+H:\电视剧\外科风云\w科f云.EP06.HD1080p.mp4
+   一般
+      完整名称:H:\电视剧\外科风云\w科f云.EP06.HD1080p.mp4
+      格式:MPEG-4
+      格式配置文件:基础媒体
+      编解码器ID: isom
+      文件大小:413 MiB
+      持续时间:43分钟：23秒
+      总体比特率:1 330 Kbps
+      编码日期:UTC 2023-02-01 05:11:32
+      标记日期:UTC 2023-02-01 05:11:32
+      写作应用:Lavf59.34.101
+      封面:是的
+   视频# 1
+      Id: 1
+      格式:AVC
+      格式/信息:高级视频编解码器
+      编解码器ID: avc1
+      编解码器ID/Info:高级视频编码
+      持续时间:43分钟：23秒
+      比特率模式:可变
+      比特率:1231 Kbps
+      最大比特率:1231 Kbps
+      宽度:1920像素
+      高度:1080像素
+      显示宽高比:16:9
+      帧率模式:可变
+      帧率:24.889 fpsv
+      最小帧率:8.333 fps
+      最大帧率:28.320 fps
+      位/(像素*帧):0.024
+      流大小:382 MiB (93%)
+      编码日期:UTC 2023-02-01 05:11:32
+      标记日期:UTC 2023-02-01 05:11:32
+   音频# 3
+      Id: 3
+      格式:AAC
+      格式/信息:高级音频编解码器
+      格式版本:版本4
+      格式简介:LC
+      格式设置，SBR:无
+      编解码器ID: 40
+      持续时间:43分钟：23秒
+      比特率模式:恒定
+      码率:93.0 Kbps
+      最大比特率:93.0 Kbps
+      通道(s): 2通道
+      通道位置:左、右
+      采样率:48.0 KHz
+      分辨率:16位
+      流大小:28.9 MiB (7%)
+      编码日期:UTC 2023-02-01 05:11:32
+      标记日期:UTC 2023-02-01 05:11:32
+                </div>
+            </div>
+        </details>
+    </div>
+
+    <!-- 资源与工具 -->
+    <div class="category">
+        <h2 class="category-title">资源与工具</h2>
+        <div class="highlight"><p>以下资源分类整理，方便查找和使用</p></div>
+        <div class="resource-grid">
+            <!-- 游戏下载 -->
+            <div class="resource-card">
+                <h3 style="color: #00ccff;">游戏下载</h3>
+                <ul>
+                    <li><a href="https://opa.wjgelbub.com/" target="_blank" rel="noopener noreferrer">MASOBU 麻涩部｜真人互動遊戲平台</a></li>
+                    <li><a href="https://byrutgame.org" target="_blank" rel="noopener noreferrer">ByrutGame - PC游戏下载</a></li>
+                    <li><a href="https://www.xyg688.com" target="_blank" rel="noopener noreferrer">小妖怪分享|兴趣使然的资源搬运Blog</a></li>
+                    <li><a href="https://www.zzzzz688.com" target="_blank" rel="noopener noreferrer">游戏天堂-全球游戏下载基地</a></li>
+                    <li><a href="https://g654321.com" target="_blank" rel="noopener noreferrer">18Game – 成人游戏合集大全</a></li>
+                    <li><a href="https://lzlgo.com" target="_blank" rel="noopener noreferrer">梨子乐游戏</a></li>
+                    <li><a href="https://www.vgter.net" target="_blank" rel="noopener noreferrer">上游世界 | SWITCH游戏下载 | PS4游戏下载</a></li>
+                    <li><a href="http://flysheep.ysepan.com" target="_blank" rel="noopener noreferrer">flysheep资源避难所</a></li>
+                    <li><a href="https://koyso.to" target="_blank" rel="noopener noreferrer">Koyso</a></li>
+                    <li><a href="https://mod.3dmgame.com/ETS2" target="_blank" rel="noopener noreferrer">3DM Mod站 - 最新最全的免费游戏Mod资源下载站</a></li>
+                    <li><a href="https://www.steambk.com" target="_blank" rel="noopener noreferrer">蒸汽游戏宝库 - 高质量Steam单机游戏下载站</a></li>
+                    <li><div class="tooltip-green"><a href="https://www.rockstargames.com/zh" target="_blank" rel="noopener noreferrer">Rockstar Games</a><span class="tooltiptext-green">GTA6官方最新消息</span></div></li>
+                </ul>
+            </div>
+
+            <!-- 系统下载 -->
+            <div class="resource-card">
+                <h3 style="color: #33cc99;">系统下载</h3>
+                <ul>
+                    <li><div class="tooltip-microsoft"><a href="https://www.microsoft.com/zh-cn/software-download" target="_blank" rel="noopener noreferrer">微软官方下载</a><span class="tooltiptext-microsoft">注意：微软官网已停止Windows 8.1和Windows 7的下载服务</span></div></li>
+                    <li><a href="https://msdn.itellyou.cn" target="_blank" rel="noopener noreferrer">MSDN, 我告诉你 - 做一个安静的工具站</a></li>
+                    <li><div class="tooltip-green"><a href="https://uupdump.net" target="_blank" rel="noopener noreferrer">UUP dump</a><span class="tooltiptext-green">UUP dump是一个将微软UUP更新文件转换为完整Windows系统ISO镜像的第三方工具网站</span></div></li>
+                    <li><a href="https://www.cmdpe.com" target="_blank" rel="noopener noreferrer">cmdpe网络版-可以上网、远程、下载的网络版PE系统</a></li>
+                    <li><div class="tooltip-green"><a href="https://www.ventoy.net/cn/index.html" target="_blank" rel="noopener noreferrer">Ventoy</a><span class="tooltiptext-green">开源免费的多合一系统启动盘制作工具</span></div></li>
+                    <li><div class="tooltip-green"><a href="https://windngzs.mysxl.cn" target="_blank" rel="noopener noreferrer">Windows电脑工作室 | 上线了sxl.cn</a><span class="tooltiptext-green">提供定制版Windows系统下载和PE系统资源</span></div></li>
+                </ul>
+            </div>
+
+            <!-- 学习资源 -->
+            <div class="resource-card">
+                <h3 style="color: #9966ff;">学习资源</h3>
+                <ul>
+                    <li><a href="https://appy1bnmaqn7922.pc.xiaoe-tech.com" target="_blank" rel="noopener noreferrer">python在线学堂小鹅通店铺主页</a></li>
+                    <li><a href="https://pythontutor.com" target="_blank" rel="noopener noreferrer">Python, Java, C, C++, JavaScript 代码可视化网站</a></li>
+                    <li><div class="tooltip-green"><a href="https://ecnkklr3g1a7.feishu.cn/wiki/G4WOwPPWYigZc6k3zOIc5E9OnMb" target="_blank" rel="noopener noreferrer">DJ老杨|黑K技工具箱 001</a><span class="tooltiptext-green">飞书云文档，提供手机/电脑必备软件等资源</span></div></li>
+                </ul>
+            </div>
+
+            <!-- 资源搜索 -->
+            <div class="resource-card">
+                <h3 style="color: #ff5e62;">资源搜索</h3>
+                <ul>
+                    <li><a href="https://panyq.com" target="_blank" rel="noopener noreferrer">盘友圈</a></li>
+                    <li><a href="https://www.seedhub.cc" target="_blank" rel="noopener noreferrer">SeedHub | 影视&动漫分享</a></li>
+                </ul>
+            </div>
+
+            <!-- 实用工具 -->
+            <div class="resource-card">
+                <h3 style="color: #00ccff;">实用工具</h3>
+                <ul>
+                    <li><a href="https://timepulse.ravelloh.top" target="_blank" rel="noopener noreferrer">TimePulse倒计时</a></li>
+                    <li><a href="https://transfer.52python.cn" target="_blank" rel="noopener noreferrer">文件传输服务</a></li>
+                    <li><a href="https://kms.cx" target="_blank" rel="noopener noreferrer">KMS激活工具</a></li>
+                    <li><a href="https://snapany.com/zh" target="_blank" rel="noopener noreferrer">视频图片解析下载</a></li>
+                    <li><div class="tooltip-green"><a href="https://www.catalog.update.microsoft.com/Home.aspx" target="_blank" rel="noopener noreferrer">Microsoft Update Catalog</a><span class="tooltiptext-green">Windows系统补丁和驱动程序官方下载网站</span></div></li>
+                    <li><a href="https://www.mltzao.com" target="_blank" rel="noopener noreferrer">名龙堂造-专为PC机游戏玩家提供硬件服务的平台</a></li>
+                    <li><div class="tooltip-green"><a href="https://www.189.cn" target="_blank" rel="noopener noreferrer">中国电信网上营业厅</a><span class="tooltiptext-green">中国电信官方网上营业厅</span></div></li>
+                    <li><div class="tooltip-green"><a href="https://blmp.cdzjryb.com/fplc_daas_portal/#/infoDetail?prevPageTitle=%E4%BD%8F%E5%BB%BA%E8%93%89e%E5%8A%9E&type=1&title=%E9%A2%84%2F%E7%8E%B0%E5%94%AE%E9%A1%B9%E7%9B%AE" target="_blank" rel="noopener noreferrer">成都市建筑（项目）全生命周期管理平台(预/现售项目信息)</a><span class="tooltiptext-green">成都市建筑（项目）全生命周期管理平台</span></div></li>
+                    <li><div class="tooltip-green"><a href="https://vocalremover.org/zh" target="_blank" rel="noopener noreferrer">分离人声 [AI] Vocal Remover</a><span class="tooltiptext-green">使用AI技术分离音频中的人声和伴奏</span></div></li>
+                    <li><div class="tooltip-green"><a href="https://html2web.com" target="_blank" rel="noopener noreferrer">HTML2WEB_粘贴代码，分享创意！</a><span class="tooltiptext-green">在线代码分享和预览平台</span></div></li>
+                    <li><div class="tooltip-green"><a href="https://postome.com" target="_blank" rel="noopener noreferrer">首页 - PostoMe | 时光邮局 | 时光信箱</a><span class="tooltiptext-green">给未来的自己或他人写信</span></div></li>
+                    <li><div class="tooltip-green"><a href="https://cd.ke.com" target="_blank" rel="noopener noreferrer">成都房产网_成都二手房|租房|新房【成都贝壳找房】</a><span class="tooltiptext-green">成都地区专业的房产信息平台</span></div></li>
+                    <li><div class="tooltip-green"><a href="https://www.qiniu.com" target="_blank" rel="noopener noreferrer">七牛云 | 一站式中立音视频云 + AI</a><span class="tooltiptext-green">国内领先的一站式音视频云服务商</span></div></li>
+                </ul>
+            </div>
+
+            <!-- 技术论坛 -->
+            <div class="resource-card">
+                <h3 style="color: #ff9966;">技术论坛</h3>
+                <ul>
+                    <li><a href="https://bbs.potplayer.org" target="_blank" rel="noopener noreferrer">PotPlayer中文论坛-PotPlayer播放器技术交流平台</a></li>
+                </ul>
+            </div>
+
+            <!-- 电视台在线直播 -->
+            <div class="resource-card">
+                <h3 style="color: #ff0050;">电视台在线直播频道</h3>
+                <ul>
+                    <li><div class="tooltip-green"><a href="https://live.jstv.com" target="_blank" rel="noopener noreferrer">江苏卫视在线观看_江苏电视台直播频道-荔枝网</a><span class="tooltiptext-green">江苏卫视官方在线直播平台</span></div></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 抖音相关 -->
+    <div class="category">
+        <h2 class="category-title">抖音相关</h2>
+        <div class="highlight"><p>抖音直播间与个人账号，点击即可观看直播或查看主页</p></div>
+        <div class="douyin-parallel">
+            <div class="resource-card">
+                <h3 style="color: #ff0050;">抖音直播间</h3>
+                <ul>
+                    <li><span class="douyin-live">直播</span><a href="https://live.douyin.com/654047241463" target="_blank" rel="noopener noreferrer" class="douyin-link">李伯清直播间</a></li>
+                    <li><span class="douyin-live">直播</span><a href="https://live.douyin.com/920378299357" target="_blank" rel="noopener noreferrer" class="douyin-link">湖北发布的抖音直播间</a></li>
+                    <li><span class="douyin-live">直播</span><a href="https://live.douyin.com/308244617136" target="_blank" rel="noopener noreferrer" class="douyin-link">帮女郎在行动的抖音直播间</a></li>
+                    <li><span class="douyin-live">直播</span><a href="https://live.douyin.com/867088577067" target="_blank" rel="noopener noreferrer" class="douyin-link">红星新闻的抖音直播间</a></li>
+                    <li><span class="douyin-live">直播</span><a href="https://live.douyin.com/282773369501" target="_blank" rel="noopener noreferrer" class="douyin-link">央视新闻的抖音直播间</a></li>
+                    <li><span class="douyin-live">直播</span><a href="https://live.douyin.com/470715389675" target="_blank" rel="noopener noreferrer" class="douyin-link">Vista看天下的抖音直播间</a></li>
+                </ul>
+            </div>
+            <div class="resource-card">
+                <h3 style="color: #ff0050;">个人抖音账号</h3>
+                <ul>
+                    <li><span class="douyin-personal">账号</span><a href="https://www.douyin.com/user/MS4wLjABAAAAUsD9x4kwhXyxXU6-ivZ2G8vchRMQZE0zwPL9Ha5jaRC-wHl7_BJ7AkxBWEnSWTyA?vid=7241412456315112715" target="_blank" rel="noopener noreferrer" class="douyin-link">扫盲班主任的抖音</a></li>
+                    <li><span class="douyin-personal">账号</span><a href="https://www.douyin.com/user/MS4wLjABAAAAJ70_gbgcwaY2k-DBCEExdLYM8DzBtDD4isUxNXUKuNQ" target="_blank" rel="noopener noreferrer" class="douyin-link">李伯清的抖音</a></li>
+                    <li><span class="douyin-personal">账号</span><a href="https://www.douyin.com/user/MS4wLjABAAAAQ1dFO9i4ulRYixl_ALyg1XFRoO_CpGDQR9LiacuDc_k" target="_blank" rel="noopener noreferrer" class="douyin-link">在下莫老师的抖音</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="update-time">
+        <p>本页面最新整理时间为 黄帝纪年4723年公元2026-07-12 星期日 12:00</p>
+    </div>
+
+    <div class="footer">
+        <p>©黄帝纪年4722年 公元2026 KMPlayer资源集合页面 | 科技感优化版本</p>
+    </div>
+
+    <!-- 音频元素 -->
+    <audio id="background-music" loop>您的浏览器不支持音频元素。</audio>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
